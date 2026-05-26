@@ -1,0 +1,71 @@
+{
+  "skill_name": "using-nvm",
+  "evals": [
+    {
+      "id": 1,
+      "name": "command-not-found-macos-zsh",
+      "prompt": "i just ran the nvm install script (the curl one from the readme) and now command -v nvm gives me nothing. mac, zsh. wat do",
+      "expected_output": "Diagnoses the 'nvm: command not found after install on macOS zsh' case. Walks through the documented recovery: close+reopen terminal, then if that fails, `touch ~/.zshrc` and rerun the installer, or manually source nvm. References the macOS troubleshooting section.",
+      "files": [],
+      "assertions": [
+        {"id": "explains_nvm_is_shell_function", "text": "Explains nvm is a sourced shell function (not a binary on PATH)"},
+        {"id": "suggests_touch_zshrc_and_reinstall", "text": "Suggests `touch ~/.zshrc` and rerunning the installer as the canonical macOS recovery"},
+        {"id": "suggests_source_zshrc_or_new_terminal", "text": "Suggests `source ~/.zshrc` or opening a new terminal as a first-line recovery"},
+        {"id": "does_not_recommend_homebrew_nvm", "text": "Does NOT recommend installing nvm via Homebrew"},
+        {"id": "does_not_recommend_sudo", "text": "Does NOT recommend using sudo with nvm"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "pin-node-version-via-nvmrc",
+      "prompt": "our team uses node 18.17.0 for the api service. set this up in the repo so when anyone clones and cds in they get the right node automatically. happy to add a postinstall or whatever",
+      "expected_output": "Recommends committing a `.nvmrc` file with `18.17.0` rather than a postinstall script. Explains `.nvmrc` semantics. Optionally suggests the auto-switch-on-cd snippet.",
+      "files": [],
+      "assertions": [
+        {"id": "recommends_nvmrc_with_18_17_0", "text": "Recommends committing a `.nvmrc` file with `18.17.0` at the repo root"},
+        {"id": "declines_postinstall_with_reason", "text": "Explains that a subshell can't mutate the parent shell's Node version, so postinstall can't actually switch versions"},
+        {"id": "addresses_auto_switch_realistically", "text": "Addresses the 'automatically on cd' part: provides a shell hook snippet or names community alternatives"},
+        {"id": "explains_nvmrc_semantics", "text": "Explains key `.nvmrc` semantics: `nvm install`/`nvm use` reads it and/or upward directory traversal"}
+      ]
+    },
+    {
+      "id": 3,
+      "name": "apple-silicon-old-node",
+      "prompt": "trying to install node 12.22 on my M2 macbook with nvm and it just blows up during compile. need to test something against an old version of node-sass for a client.",
+      "expected_output": "Identifies Apple Silicon + pre-v16 Node case. Provides Rosetta workflow with `--shared-zlib`.",
+      "files": [],
+      "assertions": [
+        {"id": "identifies_apple_silicon_root_cause", "text": "Identifies that Node 12 predates Apple Silicon arm64 support (official in v16.0)"},
+        {"id": "provides_rosetta_workflow", "text": "Provides Rosetta workflow: `softwareupdate --install-rosetta` and `arch -x86_64 zsh`"},
+        {"id": "mentions_shared_zlib_flag", "text": "Includes `--shared-zlib` flag with `nvm install`"},
+        {"id": "mentions_source_nvm_in_rosetta_shell", "text": "Notes that nvm may need to be re-sourced inside the Rosetta shell"}
+      ]
+    },
+    {
+      "id": 4,
+      "name": "docker-ci-nvm-setup",
+      "prompt": "we have a Dockerfile (FROM ubuntu:22.04) and i need nvm + node 20 working in CI. the current setup keeps failing because nvm isn't loaded in the RUN steps",
+      "expected_output": "Explains non-interactive bash root cause. Provides BASH_ENV or ENTRYPOINT-with-source pattern.",
+      "files": [],
+      "assertions": [
+        {"id": "identifies_non_interactive_shell_root_cause", "text": "Identifies that Docker RUN is non-interactive bash and doesn't source ~/.bashrc"},
+        {"id": "provides_source_pattern_in_run", "text": "Provides BASH_ENV approach OR explicit `source $NVM_DIR/nvm.sh` per RUN OR ENTRYPOINT that sources nvm"},
+        {"id": "uses_pinned_install_url", "text": "Uses a pinned nvm install URL (e.g., `v0.40.4`) rather than `master` or `latest`"},
+        {"id": "mentions_shell_or_set_command", "text": "Uses `SHELL [\"/bin/bash\", ...]` directive OR explicitly invokes bash in RUN commands"}
+      ]
+    },
+    {
+      "id": 5,
+      "name": "migrate-globals-node-bump",
+      "prompt": "bumping from node 18 to node 20 across the org — want to bring all my global cli tools (typescript, ts-node, vercel, pnpm) with me without reinstalling each one by hand",
+      "expected_output": "Recommends `nvm install --reinstall-packages-from=current --latest-npm 20`.",
+      "files": [],
+      "assertions": [
+        {"id": "uses_reinstall_packages_from", "text": "Recommends `nvm install --reinstall-packages-from=...`"},
+        {"id": "addresses_npm_node_incompatibility", "text": "Uses `--latest-npm` OR explains that --reinstall-packages-from doesn't bump npm by design"},
+        {"id": "mentions_default_alias_or_per_shell_scope", "text": "Mentions setting `nvm alias default 20` OR per-shell scope of `nvm use`"},
+        {"id": "mentions_pnpm_caveat", "text": "Flags that pnpm may not migrate cleanly if installed via corepack, Homebrew, or standalone installer"}
+      ]
+    }
+  ]
+}
